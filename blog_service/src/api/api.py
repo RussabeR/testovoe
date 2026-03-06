@@ -18,7 +18,7 @@ async def get_all_posts(db: DBDep, skip: PositiveInt = 0, limit: PositiveInt = 2
     return await PostsService(db).get_all_posts(skip, limit)
 
 
-@router.post("", summary="Создание нового поста")
+@router.post("", summary="Создание нового поста пользователем")
 async def create_post(
     db: DBDep,
     user_id: CurrentUserId,
