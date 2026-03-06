@@ -1,11 +1,13 @@
 from unittest.mock import MagicMock, AsyncMock
 
 import pytest
-from src.exceptions.exceptions import PostNotFoundException, UserNotFoundException, PostAlreadyExistException, \
-    ObjectNotFoundException
-from src.schemas.post_schemas import PostOUT, PostCreateRequest
-
-
+from src.exceptions.exceptions import (
+    PostNotFoundException,
+    UserNotFoundException,
+    PostAlreadyExistException,
+    ObjectNotFoundException,
+)
+from src.schemas.posts_schemas import PostOUT, PostCreateRequest
 
 
 @pytest.mark.asyncio
@@ -20,7 +22,6 @@ async def test_get_all_posts(posts_service, mock_db):
     post2.id = 2
     post2.title = "Second Post"
     post2.content = "Second content"
-
 
     mock_db.posts.get_filtered = AsyncMock(return_value=[post, post2])
 
@@ -83,7 +84,6 @@ async def test_get_user_posts_with_cache(posts_service, mock_db):
     posts_service.post_cache.get_or_set_user_posts.assert_awaited_once()
 
 
-
 @pytest.mark.asyncio
 async def test_get_user_post_by_id_no_cache_found(posts_service, mock_db):
     posts_service.post_cache = None
@@ -105,7 +105,6 @@ async def test_get_user_post_by_id_no_cache_found(posts_service, mock_db):
     mock_db.posts.get_one.assert_called_once_with(id=1, user_id=1)
 
 
-
 @pytest.mark.asyncio
 async def test_get_user_post_by_id_no_cache_not_found(posts_service, mock_db):
     posts_service.post_cache = None
@@ -119,7 +118,6 @@ async def test_get_user_post_by_id_no_cache_not_found(posts_service, mock_db):
         await posts_service.get_user_post_by_id(user_id=1, post_id=1)
 
     mock_db.posts.get_one.assert_called_once_with(id=1, user_id=1)
-
 
 
 @pytest.mark.asyncio
@@ -136,10 +134,7 @@ async def test_get_user_post_by_id_cache_hit(posts_service, mock_db):
     assert isinstance(result, PostOUT)
     assert result.title == "Cached Post"
 
-
     posts_service.post_cache.get_or_set_user_post.assert_awaited_once()
-
-
 
 
 @pytest.mark.asyncio
@@ -161,8 +156,6 @@ async def test_get_user_post_by_id_cache_miss_not_found(posts_service, mock_db):
         await posts_service.get_user_post_by_id(user_id=1, post_id=1)
 
     posts_service.post_cache.get_or_set_user_post.assert_awaited_once()
-
-
 
 
 @pytest.mark.asyncio
@@ -191,7 +184,6 @@ async def test_add_post_already_exists(posts_service, mock_db):
     mock_db.posts.exists.assert_awaited_once_with(user_id=1, title="Test")
 
 
-
 @pytest.mark.asyncio
 async def test_add_post_success_no_cache(posts_service, mock_db):
     posts_service.post_cache = None
@@ -208,7 +200,7 @@ async def test_add_post_success_no_cache(posts_service, mock_db):
 
     mock_db.commit = AsyncMock()
 
-    from src.schemas.post_schemas import PostCreateRequest
+    from src.schemas.posts_schemas import PostCreateRequest
 
     data = PostCreateRequest(title="New Post", content="Content")
     result = await posts_service.add_post(user_id=1, data=data)
@@ -221,7 +213,6 @@ async def test_add_post_success_no_cache(posts_service, mock_db):
     mock_db.posts.exists.assert_awaited_once_with(user_id=1, title="New Post")
     mock_db.posts.add.assert_awaited_once()
     mock_db.commit.assert_awaited_once()
-
 
 
 @pytest.mark.asyncio
@@ -239,7 +230,7 @@ async def test_add_post_success_with_cache(posts_service, mock_db):
     mock_db.posts.add = AsyncMock(return_value=post_mock)
     mock_db.commit = AsyncMock()
 
-    from src.schemas.post_schemas import PostCreateRequest
+    from src.schemas.posts_schemas import PostCreateRequest
 
     data = PostCreateRequest(title="New Post", content="Content")
     result = await posts_service.add_post(user_id=1, data=data)
@@ -255,7 +246,6 @@ async def test_add_post_success_with_cache(posts_service, mock_db):
     posts_service.post_cache.invalidate_user_posts.assert_awaited_once_with(1)
 
 
-
 @pytest.mark.asyncio
 async def test_delete_post_not_found(posts_service, mock_db):
     mock_db.posts.get_one_or_none = AsyncMock(return_value=None)
@@ -267,7 +257,6 @@ async def test_delete_post_not_found(posts_service, mock_db):
         await posts_service.delete_post(user_id=1, post_id=1)
 
     mock_db.posts.get_one_or_none.assert_awaited_once_with(id=1)
-
 
 
 @pytest.mark.asyncio
@@ -284,7 +273,6 @@ async def test_delete_post_permission_error(posts_service, mock_db):
         await posts_service.delete_post(user_id=1, post_id=1)
 
     mock_db.posts.get_one_or_none.assert_awaited_once_with(id=1)
-
 
 
 @pytest.mark.asyncio
@@ -320,7 +308,6 @@ async def test_delete_post_success_with_cache(posts_service, mock_db):
     result = await posts_service.delete_post(user_id=1, post_id=1)
 
     assert result == {"status": "ok", "message": "Пост 1 удален"}
-
 
     mock_db.posts.get_one_or_none.assert_awaited_once_with(id=1)
     mock_db.posts.delete.assert_awaited_once_with(id=1)

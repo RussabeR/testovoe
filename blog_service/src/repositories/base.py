@@ -12,7 +12,6 @@ from src.exceptions.exceptions import (
 M = TypeVar("M", bound=DeclarativeBase)  # SQLAlchemy Model
 
 
-
 class BaseRepository(Generic[M]):
     model: Type[M]
 
@@ -23,7 +22,6 @@ class BaseRepository(Generic[M]):
         try:
             model_data = data.model_dump()
             model = self.model(**model_data)
-
 
             self.session.add(model)
 
@@ -36,13 +34,7 @@ class BaseRepository(Generic[M]):
                 raise ObjectExistYet from e
             raise
 
-    async def get_filtered(
-            self,
-            *filter,
-            skip: int = 0,
-            limit: int = 100,
-            **filter_by
-    ):
+    async def get_filtered(self, *filter, skip: int = 0, limit: int = 100, **filter_by):
         query = (
             select(self.model)
             .filter(*filter)
@@ -53,19 +45,16 @@ class BaseRepository(Generic[M]):
         result = await self.session.execute(query)
         return result.scalars().all()
 
-
     async def get_all(self, *args, **kwargs):
         return await self.get_filtered()
 
-
     async def edit(
-            self, data: BaseModel, exclude_unset: bool = False, **filter_by
+        self, data: BaseModel, exclude_unset: bool = False, **filter_by
     ) -> Optional[M]:
         values_to_update = data.model_dump(exclude_unset=exclude_unset)
 
         if not values_to_update:
             raise ValueError("No values to update")
-
 
         update_stmt = (
             update(self.model)
@@ -75,7 +64,6 @@ class BaseRepository(Generic[M]):
         )
 
         result = await self.session.execute(update_stmt)
-
 
         updated_obj = result.scalar_one_or_none()
 
@@ -96,7 +84,6 @@ class BaseRepository(Generic[M]):
 
         query = select(self.model).where(self.model.id == id)  # type: ignore[attr-defined]
 
-
         result = await self.session.execute(query)
         model = result.scalars().first()
 
@@ -115,8 +102,6 @@ class BaseRepository(Generic[M]):
 
         return model
 
-
-
     async def add_bulk(self, data: Sequence[BaseModel]):
         add_data_stmt = (
             insert(self.model)
@@ -126,14 +111,8 @@ class BaseRepository(Generic[M]):
         result = await self.session.execute(add_data_stmt)
         return result.scalars().all()
 
-
     async def exists(self, **filters) -> bool:
         stmt = select(self.model).filter_by(**filters).limit(1)
         result = await self.session.execute(stmt)
         row = result.scalar_one_or_none()
         return row is not None
-
-
-
-
-

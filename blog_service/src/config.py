@@ -17,7 +17,6 @@ class Settings(BaseSettings):
     CACHE_TTL_POPULAR: int
     CACHE_TTL_USER_POSTS: int
 
-
     DB_NAME: str
     DB_HOST: str
     DB_PORT: int
@@ -25,7 +24,6 @@ class Settings(BaseSettings):
     DB_PASS: str
 
     TIME_ZONE: str
-
 
     @property
     def REDIS_CACHE_URL(self) -> str:
@@ -35,12 +33,9 @@ class Settings(BaseSettings):
     def DB_URL(self):
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-
     @property
     def TZ(self):
         return ZoneInfo(self.TIME_ZONE)
-
-
 
     model_config = SettingsConfigDict(
         env_file=os.getenv("ENV_FILE", "../.secrets/.env"),

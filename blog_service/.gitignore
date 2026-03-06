@@ -67,3 +67,8 @@ logs/
 ### OS ###
 .DS_Store
 Thumbs.db
+
+.db
+
+.idea
+

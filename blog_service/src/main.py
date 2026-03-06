@@ -21,13 +21,11 @@ async def lifespan(app: FastAPI):
         decode_responses=True,
     )
 
-
     redis_mgr = RedisManager(client)
     app.state.redis = redis_mgr
     logger.info("Redis connected and stored in app.state")
 
     yield
-
 
     await client.close()
     logger.info("Redis closed")

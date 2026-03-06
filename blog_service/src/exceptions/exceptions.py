@@ -12,9 +12,11 @@ class PostNotFoundException(BlogException):
     status_code = 404
     detail = "Post not found"
 
+
 class PermissionErrorException(BlogException):
     status_code = 403
     detail = "You can only work with your own posts"
+
 
 class PostAlreadyExistException(BlogException):
     status_code = 409

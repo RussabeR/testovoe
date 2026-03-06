@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from src.models.posts import PostsOrm
 
 
-
 class UsersOrm(Base):
     __tablename__ = "users"
 
@@ -38,13 +37,6 @@ class UsersOrm(Base):
         nullable=False,
     )
 
-
     posts: Mapped[List["PostsOrm"]] = relationship(
-        back_populates="user",
-        cascade="all, delete-orphan"
+        back_populates="user", cascade="all, delete-orphan"
     )
-
-
-
-
-

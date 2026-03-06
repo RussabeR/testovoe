@@ -6,6 +6,5 @@ class PostsRepository(BaseRepository):
     model = PostsOrm
     pass
 
+
 # При необходимости в новых реализациях конкретных методов под posts
-
-

@@ -3,20 +3,17 @@ from pydantic import PositiveInt
 
 from src.services.posts_services import PostsService
 from src.api.dependencies import DBDep, CurrentUserId, get_current_user_id, CacheDep
-from src.schemas.post_schemas import PostCreateRequest, PostEdit
+from src.schemas.posts_schemas import PostCreateRequest, PostEdit
 
 router = APIRouter(
     prefix="/posts",
     tags=["Посты"],
-    dependencies = [Depends(get_current_user_id)]   #эмуляция проверки доступа
+    dependencies=[Depends(get_current_user_id)],  # эмуляция проверки доступа
 )
 
+
 @router.get("", summary="Получение всех постов пользователей с пагинацией")
-async def get_all_posts(
-    db: DBDep,
-    skip: int = 0,
-    limit: int = 20
-):
+async def get_all_posts(db: DBDep, skip: int = 0, limit: int = 20):
 
     return await PostsService(db).get_all_posts(skip, limit)
 
@@ -32,15 +29,11 @@ async def create_post(
     return await PostsService(db, cache).add_post(user_id, data)
 
 
-
-
-
 @router.get("/all", summary="Получение постов пользователя с кешированием")
 async def get_user_posts(
     db: DBDep,
     user_id: CurrentUserId,
     cache: CacheDep,
-
 ):
     return await PostsService(db, cache).get_user_posts(user_id)
 
@@ -56,7 +49,6 @@ async def get_post(
     return await PostsService(db, cache).get_user_post_by_id(user_id, post_id)
 
 
-
 @router.patch("/{post_id}", summary="Частичное обновление поста пользователя")
 async def update_post(
     db: DBDep,
@@ -67,9 +59,7 @@ async def update_post(
 ):
 
     return await PostsService(db, cache).partially_edit_post(
-        post_id=post_id,
-        data=post_data,
-        user_id=current_user_id
+        post_id=post_id, data=post_data, user_id=current_user_id
     )
 
 
@@ -82,8 +72,5 @@ async def delete_post(
 ):
 
     return await PostsService(db, cache).delete_post(
-        post_id=post_id,
-        user_id=current_user_id
+        post_id=post_id, user_id=current_user_id
     )
-
-

@@ -8,9 +8,6 @@ if TYPE_CHECKING:
     from src.models.users import UsersOrm
 
 
-
-
-
 class PostsOrm(Base):
     __tablename__ = "posts"
 
@@ -19,10 +16,4 @@ class PostsOrm(Base):
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     content: Mapped[Optional[str]] = mapped_column(String(250), nullable=False)
 
-
-
-    user: Mapped["UsersOrm"] = relationship(
-        back_populates="posts"
-    )
-
-
+    user: Mapped["UsersOrm"] = relationship(back_populates="posts")

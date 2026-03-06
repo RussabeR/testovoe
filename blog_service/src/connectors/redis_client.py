@@ -13,6 +13,3 @@ class RedisManager:
 
     async def delete(self, key: str):
         await self.client.delete(key)
-
-
-

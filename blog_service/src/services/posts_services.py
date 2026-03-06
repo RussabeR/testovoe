@@ -1,11 +1,13 @@
 from typing import Dict, List, Optional
 
 from src.exceptions.exceptions import (
-    PostNotFoundException, PostAlreadyExistException,
-    UserNotFoundException, PermissionErrorException,
-    ObjectNotFoundException
+    PostNotFoundException,
+    PostAlreadyExistException,
+    UserNotFoundException,
+    PermissionErrorException,
+    ObjectNotFoundException,
 )
-from src.schemas.post_schemas import PostOUT, PostEdit, PostAdd, PostCreateRequest
+from src.schemas.posts_schemas import PostOUT, PostEdit, PostAdd, PostCreateRequest
 from src.services.base import BaseService
 from src.services.cache.cache_service import BaseCacheService
 from src.services.cache.posts_cache import PostsCacheService
@@ -20,8 +22,6 @@ class PostsService(BaseService):
         posts = await self.db.posts.get_filtered(skip=skip, limit=limit)
         return [PostOUT.model_validate(p) for p in posts]
 
-
-
     async def get_user_posts(self, user_id: int) -> List[PostOUT]:
         if not self.post_cache:
             posts = await self.db.posts.get_filtered(user_id=user_id)
@@ -31,10 +31,10 @@ class PostsService(BaseService):
             posts = await self.db.posts.get_filtered(user_id=user_id)
             return [PostOUT.model_validate(post).model_dump() for post in posts]
 
-        posts_data = await self.post_cache.get_or_set_user_posts(user_id, load_user_posts)
+        posts_data = await self.post_cache.get_or_set_user_posts(
+            user_id, load_user_posts
+        )
         return [PostOUT(**data) for data in posts_data]
-
-
 
     async def get_user_post_by_id(self, user_id: int, post_id: int) -> PostOUT:
         if not self.post_cache:
@@ -44,7 +44,6 @@ class PostsService(BaseService):
             except ObjectNotFoundException:
                 raise PostNotFoundException()
 
-
         async def load_user_post():
             try:
                 post = await self.db.posts.get_one(id=post_id, user_id=user_id)
@@ -52,7 +51,9 @@ class PostsService(BaseService):
             except ObjectNotFoundException:
                 raise PostNotFoundException()
 
-        data = await self.post_cache.get_or_set_user_post(user_id, post_id, load_user_post)
+        data = await self.post_cache.get_or_set_user_post(
+            user_id, post_id, load_user_post
+        )
         return PostOUT(**data)
 
     async def add_post(self, user_id: int, data: PostCreateRequest) -> PostOUT:
@@ -67,13 +68,14 @@ class PostsService(BaseService):
         post = await self.db.posts.add(add_stmt)
         await self.db.commit()
 
-
         if self.post_cache:
             await self.post_cache.invalidate_user_posts(user_id)
 
         return PostOUT.model_validate(post)
 
-    async def partially_edit_post(self, post_id: int, user_id: int, data: PostEdit) -> PostOUT:
+    async def partially_edit_post(
+        self, post_id: int, user_id: int, data: PostEdit
+    ) -> PostOUT:
         post = await self.db.posts.get_one_or_none(id=post_id)
         if not post:
             raise PostNotFoundException()
@@ -82,7 +84,6 @@ class PostsService(BaseService):
 
         edited_post = await self.db.posts.edit(data, id=post_id, exclude_unset=True)
         await self.db.commit()
-
 
         if self.post_cache:
             await self.post_cache.invalidate_post(post_id, user_id)
@@ -99,12 +100,7 @@ class PostsService(BaseService):
         await self.db.posts.delete(id=post_id)
         await self.db.commit()
 
-
         if self.post_cache:
             await self.post_cache.invalidate_post(post_id, user_id)
 
         return {"status": "ok", "message": f"Пост {post_id} удален"}
-
-
-
-

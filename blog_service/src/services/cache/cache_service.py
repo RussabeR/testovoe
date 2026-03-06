@@ -27,10 +27,7 @@ class BaseCacheService:
             await self.redis.client.delete(*keys)
 
     async def get_or_set(
-        self,
-        key: str,
-        callback: Callable[[], Awaitable[Any]],
-        ttl: int
+        self, key: str, callback: Callable[[], Awaitable[Any]], ttl: int
     ):
         cached = await self.get(key)
         if cached is not None:

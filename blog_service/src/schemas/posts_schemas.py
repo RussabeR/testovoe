@@ -16,40 +16,32 @@ class PostCreateRequest(BaseModel):
         min_length=3,
         max_length=100,
         description="Заголовок поста (от 3 до 100 символов)",
-        example="Мой первый пост в блоге"
     )
     content: str = Field(
         ...,
         min_length=1,
         max_length=250,
         description="Содержание поста (до 250 символов)",
-        example="Сегодня я хочу рассказать о своем опыте программирования..."
     )
 
     model_config = ConfigDict(
         json_schema_extra={
             "examples": [
-                {
-                    "title": "Мой первый пост",
-                    "content": "Это пример содержания поста"
-                },
-                {
-                    "title": "Еще один пост",
-                    "content": "Другой пример содержания"
-                }
+                {"title": "Мой первый пост", "content": "Это пример содержания поста"},
+                {"title": "Еще один пост", "content": "Другой пример содержания"},
             ]
         }
     )
 
+
 class PostAdd(PostCreateRequest):
     user_id: int
+
 
 class PostOUT(PostBase):
     pass
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PostEdit(BaseModel):
@@ -65,9 +57,8 @@ class PostEdit(BaseModel):
     model_config = {
         "json_schema_extra": {
             "example": {
-                "title": "Обновленный заголовок"
+                "title": "Обновленный заголовок",
+                "content": "Обновленное содержание поста",
             }
         }
     }
-
-
