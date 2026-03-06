@@ -7,7 +7,7 @@ from src.schemas.posts_schemas import PostCreateRequest, PostEdit
 
 router = APIRouter(
     prefix="/posts",
-    tags=["Посты"],
+    tags=["Posts"],
     dependencies=[Depends(get_current_user_id)],  # эмуляция проверки доступа
 )
 

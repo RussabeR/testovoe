@@ -33,11 +33,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    title="AtTrainer API",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
     root_path="/api",
+    title="Blog Service",
+    generate_unique_id_function=lambda route: f"{route.tags[0]}_{route.name}" if route.tags else route.name
 )
 
 init_rate_limiter(app)
