@@ -35,7 +35,7 @@ class PostsService(BaseService):
             user_id, load_user_posts
         )
         sorted_data = sorted(posts_data, key=lambda x: x["id"])
-        return [PostOUT(**data) for data in posts_data]
+        return [PostOUT(**data) for data in sorted_data]
 
     async def get_user_post_by_id(self, user_id: int, post_id: int) -> PostOUT:
         if not self.post_cache:
@@ -70,7 +70,10 @@ class PostsService(BaseService):
         await self.db.commit()
 
         if self.post_cache:
+            print(f"🔄 Cache exists, invalidating for user {user_id}")
             await self.post_cache.invalidate_user_posts(user_id)
+            print(f"✅ Invalidation called")
+
 
         return PostOUT.model_validate(post)
 

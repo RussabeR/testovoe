@@ -40,7 +40,10 @@ class PostsCacheService:
 
 
     async def invalidate_user_posts(self, user_id: int):
-        await self.cache.delete(self._key_user_posts(user_id))
+        key = self._key_user_posts(user_id)
+        print(f"🔴 INVALIDATING cache for user {user_id}, key: {key}")
+        await self.cache.delete(key)
+        print(f"✅ Cache invalidated for key: {key}")
 
 
     async def invalidate_post(self, post_id: int, user_id: int):
