@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator, PositiveInt
 
 
 class PostBase(BaseModel):
@@ -62,3 +62,19 @@ class PostEdit(BaseModel):
             }
         }
     }
+
+
+
+class PaginationParams(BaseModel):
+    skip: int = Field(default=0, ge=0, description="Количество пропущенных записей")
+    limit: PositiveInt = Field(default=20, le=100, description="Размер страницы (макс. 100)")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "skip": 0,
+                "limit": 20
+            }
+        }
+
+

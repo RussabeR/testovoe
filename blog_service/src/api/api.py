@@ -3,7 +3,7 @@ from pydantic import PositiveInt
 
 from src.services.posts_services import PostsService
 from src.api.dependencies import DBDep, CurrentUserId, get_current_user_id, CacheDep
-from src.schemas.posts_schemas import PostCreateRequest, PostEdit
+from src.schemas.posts_schemas import PostCreateRequest, PostEdit, PaginationParams
 
 router = APIRouter(
     prefix="/posts",
@@ -13,9 +13,10 @@ router = APIRouter(
 
 
 @router.get("/all", summary="Получение всех постов пользователей с пагинацией")
-async def get_all_posts(db: DBDep, skip: PositiveInt = 0, limit: PositiveInt = 20):
+async def get_all_posts(db: DBDep,pagination: PaginationParams = Depends() ):
 
-    return await PostsService(db).get_all_posts(skip, limit)
+    return await PostsService(db).get_all_posts(skip=pagination.skip,
+        limit=pagination.limit)
 
 
 @router.post("", summary="Создание нового поста пользователем")
