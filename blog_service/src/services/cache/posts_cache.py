@@ -38,17 +38,7 @@ class PostsCacheService:
             ttl=settings.CACHE_TTL_USER_POSTS,
         )
 
-    async def get_or_set_popular(self, loader):
-        return await self.cache.get_or_set(
-            key=self._key_popular(), callback=loader, ttl=settings.CACHE_TTL_POPULAR
-        )
-
-    async def invalidate_post(self, post_id: int, user_id: int):
-        await self.cache.delete(self._key_post(post_id))
-        await self.cache.delete(self._key_user_post(user_id, post_id))
-        await self.cache.delete(self._key_user_posts(user_id))
-        await self.cache.delete(self._key_popular())
 
     async def invalidate_user_posts(self, user_id: int):
         await self.cache.delete(self._key_user_posts(user_id))
-        await self.cache.delete(self._key_popular())
+

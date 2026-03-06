@@ -12,8 +12,8 @@ router = APIRouter(
 )
 
 
-@router.get("", summary="Получение всех постов пользователей с пагинацией")
-async def get_all_posts(db: DBDep, skip: int = 0, limit: int = 20):
+@router.get("/all", summary="Получение всех постов пользователей с пагинацией")
+async def get_all_posts(db: DBDep, skip: PositiveInt = 0, limit: PositiveInt = 20):
 
     return await PostsService(db).get_all_posts(skip, limit)
 
@@ -29,7 +29,7 @@ async def create_post(
     return await PostsService(db, cache).add_post(user_id, data)
 
 
-@router.get("/all", summary="Получение постов пользователя с кешированием")
+@router.get("/by_user", summary="Получение постов пользователя с кешированием")
 async def get_user_posts(
     db: DBDep,
     user_id: CurrentUserId,
@@ -52,7 +52,7 @@ async def get_post(
 @router.patch("/{post_id}", summary="Частичное обновление поста пользователя")
 async def update_post(
     db: DBDep,
-    post_id: int,
+    post_id: PositiveInt,
     post_data: PostEdit,
     current_user_id: CurrentUserId,
     cache: CacheDep,

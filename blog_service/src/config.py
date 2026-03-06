@@ -14,7 +14,6 @@ class Settings(BaseSettings):
 
     REDIS_CACHE_DEFAULT_TTL: int
     CACHE_TTL_POST: int
-    CACHE_TTL_POPULAR: int
     CACHE_TTL_USER_POSTS: int
 
     DB_NAME: str
