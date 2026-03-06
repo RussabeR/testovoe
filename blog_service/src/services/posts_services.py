@@ -34,6 +34,7 @@ class PostsService(BaseService):
         posts_data = await self.post_cache.get_or_set_user_posts(
             user_id, load_user_posts
         )
+        sorted_data = sorted(posts_data, key=lambda x: x["id"])
         return [PostOUT(**data) for data in posts_data]
 
     async def get_user_post_by_id(self, user_id: int, post_id: int) -> PostOUT:
