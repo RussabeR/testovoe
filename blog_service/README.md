@@ -112,15 +112,17 @@ docker
 
 ____________________________Запуск____________________________
 
-1. Создать папку .secrets рядом с папкой blog_service и поместить туда секретки .db и .env 
+1. В папке лежат примеры секреток - переименовать examples (должны остаться .db и .env)
+(вынесены они вне сервиса, что бы не попадали внутрь кода контейнера при монтировании)
 
-На проекте 2 docker-compose файла для разработки (dev) с наличием hot-reload, volumes и (prod) с доп настройками 
+На проекте 2 docker-compose файла - для разработки (dev) с наличием hot-reload, volumes и (prod) с доп настройками 
 по безопасности
 
 2. Запуск на выбор режима:
 
-- docker compose -f docker-compose.prod.yml up -d --build 
 - docker compose -f docker-compose.dev.yml up -d --build
+- docker compose -f docker-compose.prod.yml up -d --build 
+
 
 Миграции проходят автоматически в контейнере
 
