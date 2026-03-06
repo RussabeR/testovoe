@@ -1,0 +1,99 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17
+    container_name: blog_db
+    restart: unless-stopped
+    env_file:
+      - ../.secrets/.db
+    ports:
+      - "127.0.0.1:6432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - blog-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  db_init:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: blog_db_init
+    env_file:
+      - ../.secrets/.db
+      - ../.secrets/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    working_dir: /app
+    command: >
+      bash -c "
+      echo 'Running database migrations...' &&
+      uv run alembic -c alembic.ini upgrade head &&
+      echo 'Seeding database...' &&
+      uv run python scripts/seeds.py $${POSTGRES_USER} $${POSTGRES_PASSWORD} $${POSTGRES_DB}
+      "
+    networks:
+      - blog-network
+
+  redis_cache:
+    image: redis:7
+    container_name: atrainer_redis_cache
+    restart: unless-stopped
+    env_file:
+      - ../.secrets/.env
+    command: sh -c "redis-server --requirepass \"$$REDIS_CACHE_PASS\" --port 6379"
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - blog-network
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "redis-cli -a \"$$REDIS_CACHE_PASS\" ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  blog_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: blog_service
+    restart: unless-stopped
+    env_file:
+      - ../.secrets/.env
+    depends_on:
+      db_init:
+        condition: service_completed_successfully
+      redis_cache:
+        condition: service_healthy
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app/src:/app
+    ports:
+      - "127.0.0.1:8000:8000"
+    command: >
+      bash -c "
+      echo 'Waiting for PostgreSQL...' &&
+      sleep 5 &&
+      uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+    networks:
+      - blog-network
+    volumes:
+      - blog_service_venv:/app/.venv
+      - ./src/migrations/versions:/app/src/migrations/versions
+      - ./src:/app/src
+
+volumes:
+  db_data:
+  blog_service_venv:
+
+networks:
+  blog-network:
+    driver: bridge

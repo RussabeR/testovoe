@@ -1,0 +1,69 @@
+### Python ###
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+### Virtual Environments (Критически важно!) ###
+.venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+### PyCharm (JetBrains) ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+cmake-build-*/
+
+### FastAPI / Environment ###
+.env
+.common.env
+.flaskenv
+# Игнорируем только файлы с секретами, но оставляем шаблоны
+!.env.example
+!.common.example.env
+
+### Docker ###
+.docker/
+# Если вы не хотите хранить данные БД в репозитории
+pg_data/
+db_data/
+
+### Testing ###
+.pytest_cache/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+htmlcov/
+
+### Logs ###
+*.log
+logs/
+
+### OS ###
+.DS_Store
+Thumbs.db

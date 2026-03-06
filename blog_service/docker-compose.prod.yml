@@ -1,0 +1,93 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17
+    container_name: blog_db
+    restart: unless-stopped
+    env_file:
+      - ../.secrets/.db
+    ports:
+      - "127.0.0.1:6432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - blog-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis_cache:
+    image: redis:7
+    container_name: blog_redis_cache
+    restart: unless-stopped
+    env_file:
+      - ../.secrets/.env
+    command: sh -c "redis-server --requirepass \"$$REDIS_CACHE_PASS\" --port 6379"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - blog-network
+    healthcheck:
+      test: ["CMD", "sh", "-c", "redis-cli -a \"$$REDIS_CACHE_PASS\" ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  blog_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: blog_service
+    restart: unless-stopped
+    env_file:
+      - ../.secrets/.env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis_cache:
+        condition: service_healthy
+    working_dir: /app/blog_service
+    environment:
+      - PYTHONPATH=/app/blog_service:/app
+    ports:
+      - "127.0.0.1:8000:8000"
+    command: >
+      bash -c "
+      echo 'Waiting for services...' &&
+      sleep 5 &&
+      uv run uvicorn src.main:app --host 0.0.0.0 --port 8000
+      "
+    networks:
+      - blog-network
+   
+
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: migration_job
+    env_file:
+      - ../secrets/.env
+      - ../.secrets/.db
+    depends_on:
+      db:
+        condition: service_healthy
+    command: [ "uv", "run", "alembic", "-c", "src/alembic.ini", "upgrade", "head" ]
+    networks:
+      - blog-network
+    profiles: [ "migrate" ]
+
+
+volumes:
+  db_data:
+
+networks:
+  blog-network:
+    driver: bridge
