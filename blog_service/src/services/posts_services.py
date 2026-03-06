@@ -70,9 +70,7 @@ class PostsService(BaseService):
         await self.db.commit()
 
         if self.post_cache:
-            print(f"🔄 Cache exists, invalidating for user {user_id}")
             await self.post_cache.invalidate_user_posts(user_id)
-            print(f"✅ Invalidation called")
 
 
         return PostOUT.model_validate(post)
