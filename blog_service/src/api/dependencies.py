@@ -35,7 +35,7 @@ async def get_current_user_id(
     )
 ) -> int:
 
-    return 33
+    return 1
 
 
 CurrentUserId = Annotated[int, Depends(get_current_user_id)]
